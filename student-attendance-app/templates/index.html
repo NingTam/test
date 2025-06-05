@@ -1,0 +1,51 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Student Attendance</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="wrapper">
+  <h2>Student Attendance</h2>
+  <div class="container" id="student-container"></div>
+</div>
+<script>
+fetch('/api/students')
+  .then(res => res.json())
+  .then(data => {
+    const container = document.getElementById('student-container');
+    data.forEach(student => {
+      const div = document.createElement('div');
+      div.className = 'student';
+      div.innerHTML = `
+        <div class="content">
+          <div class="top-row">
+            <div class="roll-number">${student.roll}</div>
+            <span class="info-icon" onclick="showDetails('${student.name}', '${student.class}', '${student.section}', '${student.attendance}')">ℹ️</span>
+          </div>
+          <div class="hover-icons">
+            <span onclick="markAttendance(${student.roll}, 'present')">✔️</span>
+            <span onclick="markAttendance(${student.roll}, 'absent')">❌</span>
+          </div>
+        </div>`;
+      container.appendChild(div);
+    });
+  });
+
+function showDetails(name, cls, section, attendance) {
+  alert(`Name: ${name}\nClass: ${cls}\nSection: ${section}\nAttendance: ${attendance}`);
+}
+
+function markAttendance(roll, status) {
+  fetch('/api/mark', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ roll, status })
+  }).then(res => res.json()).then(() => location.reload());
+}
+</script>
+</body>
+</html>
